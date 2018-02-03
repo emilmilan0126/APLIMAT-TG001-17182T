@@ -30,17 +30,6 @@ namespace aplimat_labs
         private Vector3 a = new Vector3(15,15,0);
         private Vector3 b = new Vector3(-2,10,0);
 
-        private const int HEADS = 0;
-        private const int TAILS = 1;
-        private const int UP = 2;
-        private const int DOWN = 3;
-        private const int NE = 4;
-        private const int SW = 5;
-        private const int NW = 6;
-        private const int SE = 7;
-
-        private Randomizer rng = new Randomizer(HEADS, SE);
-
         public MainWindow()
         {
             InitializeComponent();
@@ -50,44 +39,35 @@ namespace aplimat_labs
             //Console.WriteLine("x: " + c.x + " y: " + c.y + " z: " + c.z);
         }
 
-        private CubeMesh myCube = new CubeMesh(2, 1, 0);
+        private Randomizer rng = new Randomizer(-20, 20);
+        public Randomizer size = new Randomizer(0,1);
+
+        int cntr = 0;
+        private List<CubeMesh> myCubes = new List<CubeMesh>();
         private void OpenGLControl_OpenGLDraw(object sender, SharpGL.SceneGraph.OpenGLEventArgs args)
         {
             OpenGL gl = args.OpenGL;
             gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
             gl.LoadIdentity();
 
-            gl.Translate(0.0f, 0.0f, -40.0f);
+            gl.Translate(0.0f, 0.0f, -80.0f);
+            
+            CubeMesh myCube = new CubeMesh();
+            myCube.position = new Vector3(Gaussian.Generate(0,15), rng.GenerateInt(), 0);
+            myCubes.Add(myCube);
 
-            switch (rng.Generate())
-            {
-                case HEADS:
-                    myCube.position += new Vector3(0.1f, 0, 0);
-                    break;
-                case TAILS: myCube.position += new Vector3(-0.1f, 0, 0);
-                    break;
-                case UP:
-                    myCube.position += new Vector3(0, 0.1f, 0);
-                    break;
-                case DOWN:
-                    myCube.position += new Vector3(0, -0.1f, 0);
-                    break;
-                case NE:
-                    myCube.position += new Vector3(0.1f, 0.1f, 0);
-                    break;
-                case SW:
-                    myCube.position += new Vector3(-0.1f, -0.1f, 0);
-                    break;
-                case SE:
-                    myCube.position += new Vector3(-0.1f, 0.1f, 0);
-                    break;
-                case NW:
-                    myCube.position += new Vector3(0.1f, -0.1f, 0);
-                    break;
+            foreach (var Cube in myCubes)
+            {   
+                Cube.Draw(gl, rng.GenerateDouble(), rng.GenerateDouble(), rng.GenerateDouble(), size.GenerateDouble());
             }
 
 
-            myCube.Draw(gl);
+            cntr++;
+            if (cntr > 100)
+            {
+                cntr = 0;
+                myCubes.Clear();
+            }
 
             //myCube.position += new Vector3(0, .1f, 0);
             ////gl.Color(0, 1, 0);
@@ -237,8 +217,8 @@ namespace aplimat_labs
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_AMBIENT, light0ambient);
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_DIFFUSE, light0diffuse);
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_SPECULAR, light0specular);
-            gl.Enable(OpenGL.GL_LIGHTING);
-            gl.Enable(OpenGL.GL_LIGHT0);
+            gl.Disable(OpenGL.GL_LIGHTING);
+            gl.Disable(OpenGL.GL_LIGHT0);
 
             gl.ShadeModel(OpenGL.GL_SMOOTH);
 
