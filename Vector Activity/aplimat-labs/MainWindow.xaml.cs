@@ -26,53 +26,49 @@ namespace aplimat_labs
         private const float LINE_SMOOTHNESS = 0.02f;
         private const float GRAPH_LIMIT = 15;
         private const int TOTAL_CIRCLE_ANGLE = 360;
-        
-        private Vector3 a = new Vector3(15,15,0);
-        private Vector3 b = new Vector3(-2,10,0);
+       
 
         public MainWindow()
         {
             InitializeComponent();
             this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
-
-            //Vector3 c = a - b;
-            //Console.WriteLine("x: " + c.x + " y: " + c.y + " z: " + c.z);
+            
         }
 
         private Randomizer rng = new Randomizer(-20, 20);
         public Randomizer size = new Randomizer(0,1);
 
-        int cntr = 0;
-        private List<CubeMesh> myCubes = new List<CubeMesh>();
-        CubeMesh myCube = new CubeMesh();
-        private Vector3 velocity = new Vector3(1, 1, 0);
-        private Vector3 up = new Vector3(0, 1, 0);
-
+        private Vector3 myVector = new Vector3();
+        private Vector3 a = new Vector3(5, 7, 0);
+        
 
         private void OpenGLControl_OpenGLDraw(object sender, SharpGL.SceneGraph.OpenGLEventArgs args)
         {
             OpenGL gl = args.OpenGL;
             this.Title = "Vectors";
 
-
             gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
             gl.LoadIdentity();
 
             gl.Translate(0.0f, 0.0f, -40.0f);
 
-            myCube.Draw(gl);
-            myCube.position += velocity;
+            myVector = a;
 
-            if (myCube.position.x >= 28)
-                velocity.x = -1;
-            if (myCube.position.x <= -28)
-                velocity.x = 1;
+            gl.LineWidth(5);
+            gl.Color(1.0f, 0.0f, 0.0f);
+            gl.Begin(OpenGL.GL_LINE_STRIP);
+            gl.Vertex(0, 0);
+            gl.Vertex(a.x, a.y);
+            gl.End();
 
-            if (myCube.position.y >= 17)
-                velocity.y = -1;
-            if (myCube.position.y <= -17)
-                velocity.y = 1;
+            gl.LineWidth(2);
+            gl.Color(1.0f, 1.0f, 1.0f);
+            gl.Begin(OpenGL.GL_LINE_STRIP);
+            gl.Vertex(0, 0);
+            gl.Vertex(a.x, a.y);
+            gl.End();
 
+            gl.DrawText(0, 0, 1, 1, 1, "Arial", 15, "Magnitude: " + myVector.GetMagnitude());
             //myCube.position += new Vector3(0, .1f, 0);
             ////gl.Color(0, 1, 0);
             //DrawCartesianPlane(gl); //draw cartesian plane with unit lines
@@ -196,8 +192,10 @@ namespace aplimat_labs
         {
             switch (e.Key)
             {
-                case Key.W:
-                    break;
+                case Key.W: a.y++; break;
+                case Key.S: a.y--; break;
+                case Key.A: a.x--; break;
+                case Key.D: a.x++; break;
             }
         } 
         #region opengl init
@@ -235,5 +233,13 @@ namespace aplimat_labs
             gl.DrawText(x, y, 1, 1, 1, "Arial", 12, text);
         }
         #endregion
+
+        Point mousePos;
+        private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            mousePos = e.GetPosition(this);
+            a.x = (float)(mousePos.X - Width / 2) / 10;
+            a.y = -(float)(mousePos.Y - Height/ 2) / 10;
+        }
     }
 }
